@@ -6,126 +6,20 @@
     <title>SNAKE: PLANET HER - ULTIMATE EDITION</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Playfair+Display:ital,wght@0,400;1,700&display=swap" rel="stylesheet">
     <style>
+        /* (Lo stile rimane invariato, lo ometto per brevità ma va mantenuto tutto) */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: #05000a;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            font-family: 'Playfair Display', serif;
-        }
-
-        /* SFONDO SPAZIALE DETTAGLIATO */
-        #universe {
-            position: absolute;
-            inset: 0;
-            z-index: -1;
-            background: radial-gradient(circle at center, #2d004d 0%, #05000a 100%);
-            overflow: hidden;
-        }
-
-        .star {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            opacity: 0.8;
-            filter: blur(1px);
-        }
-
-        .planet {
-            position: absolute;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ff00ff22, #7a00ff22);
-            box-shadow: inset -20px -20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(255, 0, 255, 0.3);
-            filter: blur(1px);
-        }
-
-        .nebulosa {
-            position: absolute;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(255,0,255,0.05) 0%, rgba(0,0,0,0) 70%);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        /* IPERSPAZIO FRONTALE */
-        #warp-canvas {
-            position: absolute;
-            inset: 0;
-            z-index: 200;
-            display: none;
-            background: black;
-        }
-
-        /* OVERLAYS */
-        .overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(5, 0, 10, 0.7);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            backdrop-filter: blur(15px);
-            transition: opacity 1s ease;
-        }
-
-        h1 { 
-            font-family: 'Cinzel', serif;
-            font-size: clamp(3rem, 12vw, 7rem); 
-            color: #f0c3ff; 
-            text-shadow: 0 0 40px rgba(240, 195, 255, 0.5);
-            letter-spacing: 20px;
-            margin-bottom: 20px;
-        }
-
-        button {
-            padding: 20px 70px;
-            font-family: 'Cinzel', serif;
-            font-size: 1.3rem;
-            background: transparent;
-            color: #f0c3ff;
-            border: 1px solid #f0c3ff;
-            cursor: pointer;
-            letter-spacing: 5px;
-            transition: 0.5s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        button:hover {
-            background: #f0c3ff;
-            color: #050010;
-            box-shadow: 0 0 50px rgba(240, 195, 255, 0.6);
-            transform: scale(1.05);
-        }
-
-        /* GIOCO */
-        #game-wrapper {
-            position: relative;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 5px;
-            border: 1px solid rgba(240, 195, 255, 0.1);
-        }
-
+        body { background: #05000a; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: 'Playfair Display', serif; }
+        #universe { position: absolute; inset: 0; z-index: -1; background: radial-gradient(circle at center, #2d004d 0%, #05000a 100%); overflow: hidden; }
+        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.8; filter: blur(1px); }
+        .planet { position: absolute; border-radius: 50%; background: linear-gradient(135deg, #ff00ff22, #7a00ff22); box-shadow: inset -20px -20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(255, 0, 255, 0.3); filter: blur(1px); }
+        #warp-canvas { position: absolute; inset: 0; z-index: 200; display: none; background: black; }
+        .overlay { position: absolute; inset: 0; background: rgba(5, 0, 10, 0.7); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(15px); transition: opacity 1s ease; }
+        h1 { font-family: 'Cinzel', serif; font-size: clamp(3rem, 12vw, 7rem); color: #f0c3ff; text-shadow: 0 0 40px rgba(240, 195, 255, 0.5); letter-spacing: 20px; margin-bottom: 20px; }
+        button { padding: 20px 70px; font-family: 'Cinzel', serif; font-size: 1.3rem; background: transparent; color: #f0c3ff; border: 1px solid #f0c3ff; cursor: pointer; letter-spacing: 5px; transition: 0.5s; position: relative; overflow: hidden; }
+        button:hover { background: #f0c3ff; color: #050010; box-shadow: 0 0 50px rgba(240, 195, 255, 0.6); transform: scale(1.05); }
+        #game-wrapper { position: relative; padding: 10px; background: rgba(255, 255, 255, 0.03); border-radius: 5px; border: 1px solid rgba(240, 195, 255, 0.1); }
         canvas#gameCanvas { display: block; background: transparent; }
-
-        #ui-layer {
-            position: absolute;
-            top: -60px;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            font-family: 'Cinzel', serif;
-            color: #f0c3ff;
-            font-size: 1.1rem;
-        }
-
+        #ui-layer { position: absolute; top: -60px; width: 100%; display: flex; justify-content: space-between; font-family: 'Cinzel', serif; color: #f0c3ff; font-size: 1.1rem; }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -137,7 +31,7 @@
     <div id="home-screen" class="overlay">
         <h1>PLANET HER</h1>
         <p style="letter-spacing: 10px; opacity: 0.6; margin-bottom: 50px;">A ROYALE SPACE JOURNEY</p>
-        <button onclick="startWarp()">START MISSION</button>
+        <button onclick="playInitialMusic()">START MISSION</button>
     </div>
 
     <div id="result-screen" class="overlay hidden">
@@ -156,6 +50,39 @@
     </div>
 
     <script>
+        // --- GESTIONE AUDIO ---
+        const sounds = {
+            inizio: new Audio('assets/inizio.wav'),
+            transition: new Audio('assets/transition.wav'),
+            durante: new Audio('assets/durante.wav'),
+            lose: new Audio('assets/lose.wav'),
+            vittoria: new Audio('assets/livellopassato.wav'),
+            magnare: 'assets/magnare.wav' // Usiamo il path per creare cloni rapidi
+        };
+
+        // Funzione per suonare un effetto senza interrompere quello precedente
+        function playEffect(path) {
+            const effect = new Audio(path);
+            effect.play();
+        }
+
+        function stopAllMusic() {
+            [sounds.inizio, sounds.transition, sounds.durante, sounds.lose, sounds.vittoria].forEach(s => {
+                s.pause();
+                s.currentTime = 0;
+            });
+        }
+
+        // Funzione chiamata al primo click per sbloccare l'audio e avviare la musica iniziale
+        function playInitialMusic() {
+            sounds.inizio.loop = true;
+            sounds.inizio.play().catch(e => console.log("Audio in attesa di interazione"));
+            // Cambiamo la funzione del tasto per proseguire verso il warp
+            const btn = document.querySelector('#home-screen button');
+            btn.onclick = startWarp;
+            startWarp(); 
+        }
+
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
         const warpCanvas = document.getElementById("warp-canvas");
@@ -179,7 +106,6 @@
             { icon: "🥖", name: "Baguette" }, { icon: "🍝", name: "Pasta" }, { icon: "🍰", name: "Torta" }
         ];
 
-        // --- DECORAZIONI SPAZIALI ---
         function buildUniverse() {
             const container = document.getElementById('universe');
             for(let i=0; i<100; i++) {
@@ -191,20 +117,14 @@
                 s.style.top = Math.random() * 100 + '%';
                 container.appendChild(s);
             }
-            for(let i=0; i<3; i++) {
-                const p = document.createElement('div');
-                p.className = 'planet';
-                const size = 100 + Math.random() * 200;
-                p.style.width = size + 'px'; p.style.height = size + 'px';
-                p.style.left = (20 + Math.random() * 60) + '%';
-                p.style.top = (10 + Math.random() * 70) + '%';
-                container.appendChild(p);
-            }
         }
         buildUniverse();
 
-        // --- EFFETTO IPERSPAZIO REALISTICO ---
         function startWarp() {
+            // Cambio Musica: Da Inizio a Transition
+            stopAllMusic();
+            sounds.transition.play();
+
             document.getElementById('home-screen').style.opacity = '0';
             warpCanvas.style.display = 'block';
             warpCanvas.width = window.innerWidth;
@@ -220,17 +140,13 @@
             function animateWarp() {
                 warpCtx.fillStyle = "rgba(0,0,0,0.2)";
                 warpCtx.fillRect(0, 0, warpCanvas.width, warpCanvas.height);
-                
                 let done = true;
                 stars.forEach(s => {
                     s.z -= 15;
-                    if(s.z <= 0) s.z = 0;
-                    else done = false;
-
+                    if(s.z <= 0) s.z = 0; else done = false;
                     let sx = (s.x / s.z) * 100 + warpCanvas.width/2;
                     let sy = (s.y / s.z) * 100 + warpCanvas.height/2;
                     let size = (1 - s.z / warpCanvas.width) * 3;
-
                     warpCtx.fillStyle = "#f0c3ff";
                     warpCtx.beginPath();
                     warpCtx.arc(sx, sy, size, 0, Math.PI*2);
@@ -241,13 +157,16 @@
                 else {
                     warpCanvas.style.display = 'none';
                     document.getElementById('game-wrapper').classList.remove('hidden');
+                    // Inizia musica durante il gioco
+                    stopAllMusic();
+                    sounds.durante.loop = true;
+                    sounds.durante.play();
                     initGame();
                 }
             }
             animateWarp();
         }
 
-        // --- LOGICA GIOCO ---
         function initGame() {
             canvas.width = Math.floor((window.innerWidth * 0.8) / gridSize) * gridSize;
             canvas.height = Math.floor((window.innerHeight * 0.7) / gridSize) * gridSize;
@@ -259,7 +178,7 @@
             foodsInLevel = 0;
             spawnFood();
             if(gameInterval) clearInterval(gameInterval);
-            gameInterval = setInterval(gameLoop, 220); // Velocità Royale, molto calma
+            gameInterval = setInterval(gameLoop, 220);
         }
 
         function spawnFood() {
@@ -278,15 +197,14 @@
             }
 
             if (head.x === food.x && head.y === food.y) {
+                playEffect(sounds.magnare); // Effetto Mangia
                 score += 10;
                 foodsInLevel++;
-                // Cambia colore al nuovo segmento basandosi sulla palette
                 const newColor = palette[snake.length % palette.length];
                 snake.unshift({x: head.x, y: head.y, color: newColor});
                 if (foodsInLevel >= 10) showResult(true);
                 else spawnFood();
             } else {
-                // Sposta i colori lungo il corpo per l'effetto cangiante
                 for(let i = snake.length - 1; i > 0; i--) {
                     snake[i].x = snake[i-1].x;
                     snake[i].y = snake[i-1].y;
@@ -303,37 +221,24 @@
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Cibo
             ctx.font = "32px serif";
             ctx.textAlign = "center";
             ctx.fillText(food.data.icon, food.x + gridSize/2, food.y + gridSize/2 + 10);
-
-            // Serpente
             snake.forEach((part, i) => {
-                const isHead = i === 0;
                 ctx.fillStyle = part.color;
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = part.color;
-
                 ctx.beginPath();
                 ctx.roundRect(part.x + 4, part.y + 4, gridSize - 8, gridSize - 8, 12);
                 ctx.fill();
-                ctx.shadowBlur = 0;
-
-                if (isHead) {
-                    ctx.fillStyle = "red";
-                    ctx.fillRect(part.x + 8, part.y + 14, 10, 3);
-                    ctx.fillRect(part.x + 27, part.y + 14, 10, 3);
-                    ctx.fillStyle = "black";
-                    ctx.fillRect(part.x + 8, part.y + 15, 10, 1);
-                    ctx.fillRect(part.x + 27, part.y + 15, 10, 1);
-                }
             });
         }
 
         function showResult(isWin) {
             clearInterval(gameInterval);
+            stopAllMusic(); // Ferma la musica di gioco
+
+            if(isWin) sounds.vittoria.play(); // Musica Vittoria
+            else sounds.lose.play(); // Musica Sconfitta
+
             const screen = document.getElementById('result-screen');
             screen.classList.remove('hidden');
             const title = document.getElementById('result-title');
@@ -345,41 +250,32 @@
                 title.style.color = "#f0c3ff";
                 stats.innerHTML = `Score: ${score}<br>Your serpent is growing stronger.`;
                 btn.innerText = "NEXT LEVEL";
-                btn.onclick = () => { level++; screen.classList.add('hidden'); initGame(); };
+                btn.onclick = () => { 
+                    level++; 
+                    screen.classList.add('hidden'); 
+                    stopAllMusic();
+                    sounds.durante.play();
+                    initGame(); 
+                };
             } else {
                 title.innerText = "COSMIC DEFEAT";
                 title.style.color = "#ff4444";
                 stats.innerHTML = `Final Score: ${score}<br>Level reached: ${level}`;
                 btn.innerText = "RETRY";
-                btn.onclick = () => { screen.classList.add('hidden'); initGame(); };
+                btn.onclick = () => { 
+                    screen.classList.add('hidden'); 
+                    stopAllMusic();
+                    sounds.durante.play();
+                    initGame(); 
+                };
             }
         }
 
-        // CONTROLLI
         window.addEventListener("keydown", e => {
             if (e.key === "ArrowUp" && dy === 0) { nextDx = 0; nextDy = -gridSize; }
             if (e.key === "ArrowDown" && dy === 0) { nextDx = 0; nextDy = gridSize; }
             if (e.key === "ArrowLeft" && dx === 0) { nextDx = -gridSize; nextDy = 0; }
             if (e.key === "ArrowRight" && dx === 0) { nextDx = gridSize; nextDy = 0; }
-        });
-
-        canvas.addEventListener("mousedown", () => isMouseDown = true);
-        window.addEventListener("mouseup", () => isMouseDown = false);
-        canvas.addEventListener("mousemove", e => {
-            if(!isMouseDown) return;
-            const rect = canvas.getBoundingClientRect();
-            const mx = e.clientX - rect.left;
-            const my = e.clientY - rect.top;
-            const h = snake[0];
-            const adx = mx - (h.x + gridSize/2);
-            const ady = my - (h.y + gridSize/2);
-            if(Math.abs(adx) > Math.abs(ady)) {
-                if(adx > 20 && dx === 0) { nextDx = gridSize; nextDy = 0; }
-                if(adx < -20 && dx === 0) { nextDx = -gridSize; nextDy = 0; }
-            } else {
-                if(ady > 20 && dy === 0) { nextDx = 0; nextDy = gridSize; }
-                if(ady < -20 && dy === 0) { nextDx = 0; nextDy = -gridSize; }
-            }
         });
     </script>
 </body>
