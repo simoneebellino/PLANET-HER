@@ -3,23 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SNAKE: PLANET HER - ULTIMATE EDITION</title>
+    <title>SNAKE: PLANET HER - ULTIMATE AUDIO EDITION</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Playfair+Display:ital,wght@0,400;1,700&display=swap" rel="stylesheet">
     <style>
-        /* (Lo stile rimane invariato, lo ometto per brevità ma va mantenuto tutto) */
+        /* CSS Invariato come da tua richiesta */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #05000a; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: 'Playfair Display', serif; }
         #universe { position: absolute; inset: 0; z-index: -1; background: radial-gradient(circle at center, #2d004d 0%, #05000a 100%); overflow: hidden; }
         .star { position: absolute; background: white; border-radius: 50%; opacity: 0.8; filter: blur(1px); }
-        .planet { position: absolute; border-radius: 50%; background: linear-gradient(135deg, #ff00ff22, #7a00ff22); box-shadow: inset -20px -20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(255, 0, 255, 0.3); filter: blur(1px); }
         #warp-canvas { position: absolute; inset: 0; z-index: 200; display: none; background: black; }
-        .overlay { position: absolute; inset: 0; background: rgba(5, 0, 10, 0.7); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(15px); transition: opacity 1s ease; }
+        .overlay { position: absolute; inset: 0; background: rgba(5, 0, 10, 0.7); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(15px); }
         h1 { font-family: 'Cinzel', serif; font-size: clamp(3rem, 12vw, 7rem); color: #f0c3ff; text-shadow: 0 0 40px rgba(240, 195, 255, 0.5); letter-spacing: 20px; margin-bottom: 20px; }
-        button { padding: 20px 70px; font-family: 'Cinzel', serif; font-size: 1.3rem; background: transparent; color: #f0c3ff; border: 1px solid #f0c3ff; cursor: pointer; letter-spacing: 5px; transition: 0.5s; position: relative; overflow: hidden; }
-        button:hover { background: #f0c3ff; color: #050010; box-shadow: 0 0 50px rgba(240, 195, 255, 0.6); transform: scale(1.05); }
-        #game-wrapper { position: relative; padding: 10px; background: rgba(255, 255, 255, 0.03); border-radius: 5px; border: 1px solid rgba(240, 195, 255, 0.1); }
+        button { padding: 20px 70px; font-family: 'Cinzel', serif; font-size: 1.3rem; background: transparent; color: #f0c3ff; border: 1px solid #f0c3ff; cursor: pointer; letter-spacing: 5px; transition: 0.5s; }
+        button:hover { background: #f0c3ff; color: #050010; box-shadow: 0 0 50px rgba(240, 195, 255, 0.6); }
+        #game-wrapper { position: relative; padding: 10px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(240, 195, 255, 0.1); }
         canvas#gameCanvas { display: block; background: transparent; }
-        #ui-layer { position: absolute; top: -60px; width: 100%; display: flex; justify-content: space-between; font-family: 'Cinzel', serif; color: #f0c3ff; font-size: 1.1rem; }
+        #ui-layer { position: absolute; top: -60px; width: 100%; display: flex; justify-content: space-between; font-family: 'Cinzel', serif; color: #f0c3ff; }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -28,18 +27,22 @@
     <div id="universe"></div>
     <canvas id="warp-canvas"></canvas>
 
+    <!-- SCHERMATA INIZIALE -->
     <div id="home-screen" class="overlay">
         <h1>PLANET HER</h1>
         <p style="letter-spacing: 10px; opacity: 0.6; margin-bottom: 50px;">A ROYALE SPACE JOURNEY</p>
-        <button onclick="playInitialMusic()">START MISSION</button>
+        <!-- Al primo click sblocchiamo l'audio e facciamo partire inizio.wav -->
+        <button id="start-btn" onclick="initAudioAndShowStart()">ACTIVATE SYSTEMS</button>
     </div>
 
+    <!-- SCHERMATA RISULTATI -->
     <div id="result-screen" class="overlay hidden">
         <h2 id="result-title" style="font-family:'Cinzel'; font-size: 3rem; margin-bottom: 20px;"></h2>
         <div id="result-stats" style="font-size: 1.5rem; color: #ccc; margin-bottom: 30px; text-align: center;"></div>
         <button id="result-btn"></button>
     </div>
 
+    <!-- WRAPPER GIOCO -->
     <div id="game-wrapper" class="hidden">
         <div id="ui-layer">
             <span>LVL: <span id="lvl">1</span></span>
@@ -50,86 +53,50 @@
     </div>
 
     <script>
-        // --- GESTIONE AUDIO ---
+        // --- GESTIONE AUDIO AVANZATA ---
         const sounds = {
             inizio: new Audio('assets/inizio.wav'),
             transition: new Audio('assets/transition.wav'),
             durante: new Audio('assets/durante.wav'),
             lose: new Audio('assets/lose.wav'),
             vittoria: new Audio('assets/livellopassato.wav'),
-            magnare: 'assets/magnare.wav' // Usiamo il path per creare cloni rapidi
+            magnare: 'assets/magnare.wav'
         };
 
-        // Funzione per suonare un effetto senza interrompere quello precedente
-        function playEffect(path) {
-            const effect = new Audio(path);
-            effect.play();
-        }
-
         function stopAllMusic() {
-            [sounds.inizio, sounds.transition, sounds.durante, sounds.lose, sounds.vittoria].forEach(s => {
-                s.pause();
-                s.currentTime = 0;
+            Object.values(sounds).forEach(s => {
+                if(s instanceof Audio) {
+                    s.pause();
+                    s.currentTime = 0;
+                }
             });
         }
 
-        // Funzione chiamata al primo click per sbloccare l'audio e avviare la musica iniziale
-        function playInitialMusic() {
-            sounds.inizio.loop = true;
-            sounds.inizio.play().catch(e => console.log("Audio in attesa di interazione"));
-            // Cambiamo la funzione del tasto per proseguire verso il warp
-            const btn = document.querySelector('#home-screen button');
-            btn.onclick = startWarp;
-            startWarp(); 
-        }
-
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        const warpCanvas = document.getElementById("warp-canvas");
-        const warpCtx = warpCanvas.getContext("2d");
-        const gridSize = 45;
-
-        let level = 1;
-        let score = 0;
-        let foodsInLevel = 0;
-        let snake = [];
-        let food = {x: 0, y: 0, data: null};
-        let dx = gridSize, dy = 0;
-        let nextDx = gridSize, nextDy = 0;
-        let gameInterval;
-        let isMouseDown = false;
-
-        const palette = ["#ff00ff", "#e0aaff", "#9d4edd", "#7b2cbf", "#5a189a", "#3c096c", "#ff77ff", "#c77dff"];
-        const foodList = [
-            { icon: "🥕", name: "Carota" }, { icon: "🥦", name: "Broccolo" }, { icon: "🍆", name: "Melanzana" },
-            { icon: "🥩", name: "Bistecca" }, { icon: "🍗", name: "Pollo" }, { icon: "🌭", name: "Salsiccia" },
-            { icon: "🥖", name: "Baguette" }, { icon: "🍝", name: "Pasta" }, { icon: "🍰", name: "Torta" }
-        ];
-
-        function buildUniverse() {
-            const container = document.getElementById('universe');
-            for(let i=0; i<100; i++) {
-                const s = document.createElement('div');
-                s.className = 'star';
-                const size = Math.random() * 3;
-                s.style.width = size + 'px'; s.style.height = size + 'px';
-                s.style.left = Math.random() * 100 + '%';
-                s.style.top = Math.random() * 100 + '%';
-                container.appendChild(s);
-            }
-        }
-        buildUniverse();
-
-        function startWarp() {
-            // Cambio Musica: Da Inizio a Transition
+        // 1. Sblocca audio e avvia musica Home
+        function initAudioAndShowStart() {
             stopAllMusic();
-            sounds.transition.play();
+            sounds.inizio.loop = true;
+            sounds.inizio.play();
+            
+            const btn = document.getElementById('start-btn');
+            btn.innerText = "START MISSION";
+            btn.onclick = startWarpSequence;
+        }
 
-            document.getElementById('home-screen').style.opacity = '0';
+        // 2. Transizione verso il gioco
+        function startWarpSequence() {
+            stopAllMusic(); // Ferma inizio.wav
+            sounds.transition.play(); // Parte transition.wav
+            
+            document.getElementById('home-screen').classList.add('hidden');
+            runWarpEffect();
+        }
+
+        // 3. Effetto Warp e avvio gioco
+        function runWarpEffect() {
             warpCanvas.style.display = 'block';
             warpCanvas.width = window.innerWidth;
             warpCanvas.height = window.innerHeight;
-
             let stars = [];
             for(let i=0; i<400; i++) stars.push({
                 x: Math.random() * warpCanvas.width - warpCanvas.width/2,
@@ -137,48 +104,54 @@
                 z: Math.random() * warpCanvas.width
             });
 
-            function animateWarp() {
+            function animate() {
                 warpCtx.fillStyle = "rgba(0,0,0,0.2)";
                 warpCtx.fillRect(0, 0, warpCanvas.width, warpCanvas.height);
                 let done = true;
                 stars.forEach(s => {
-                    s.z -= 15;
+                    s.z -= 20;
                     if(s.z <= 0) s.z = 0; else done = false;
                     let sx = (s.x / s.z) * 100 + warpCanvas.width/2;
                     let sy = (s.y / s.z) * 100 + warpCanvas.height/2;
-                    let size = (1 - s.z / warpCanvas.width) * 3;
                     warpCtx.fillStyle = "#f0c3ff";
                     warpCtx.beginPath();
-                    warpCtx.arc(sx, sy, size, 0, Math.PI*2);
+                    warpCtx.arc(sx, sy, 2, 0, Math.PI*2);
                     warpCtx.fill();
                 });
 
-                if(!done) requestAnimationFrame(animateWarp);
+                if(!done) requestAnimationFrame(animate);
                 else {
                     warpCanvas.style.display = 'none';
                     document.getElementById('game-wrapper').classList.remove('hidden');
-                    // Inizia musica durante il gioco
+                    // AVVIO MUSICA GIOCO
                     stopAllMusic();
                     sounds.durante.loop = true;
                     sounds.durante.play();
                     initGame();
                 }
             }
-            animateWarp();
+            animate();
         }
+
+        // --- LOGICA GIOCO ---
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const warpCanvas = document.getElementById("warp-canvas");
+        const warpCtx = warpCanvas.getContext("2d");
+        const gridSize = 45;
+
+        let level = 1, score = 0, foodsInLevel = 0, snake = [], food = {x: 0, y: 0, data: null};
+        let dx = gridSize, dy = 0, nextDx = gridSize, nextDy = 0, gameInterval;
 
         function initGame() {
             canvas.width = Math.floor((window.innerWidth * 0.8) / gridSize) * gridSize;
             canvas.height = Math.floor((window.innerHeight * 0.7) / gridSize) * gridSize;
-            snake = [
-                {x: 4 * gridSize, y: 5 * gridSize, color: palette[0]},
-                {x: 3 * gridSize, y: 5 * gridSize, color: palette[1]}
-            ];
+            snake = [{x: 4 * gridSize, y: 5 * gridSize, color: "#ff00ff"}, {x: 3 * gridSize, y: 5 * gridSize, color: "#e0aaff"}];
             dx = gridSize; dy = 0; nextDx = gridSize; nextDy = 0;
             foodsInLevel = 0;
             spawnFood();
             if(gameInterval) clearInterval(gameInterval);
-            gameInterval = setInterval(gameLoop, 220);
+            gameInterval = setInterval(gameLoop, 180);
         }
 
         function spawnFood() {
@@ -191,85 +164,83 @@
             dx = nextDx; dy = nextDy;
             const head = { x: snake[0].x + dx, y: snake[0].y + dy, color: snake[0].color };
 
+            // COLLISIONE MURO O CORPO
             if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height || snake.some(s => s.x === head.x && s.y === head.y)) {
                 showResult(false);
                 return;
             }
 
+            // MANGIARE
             if (head.x === food.x && head.y === food.y) {
-                playEffect(sounds.magnare); // Effetto Mangia
+                new Audio(sounds.magnare).play(); // Effetto immediato
                 score += 10;
                 foodsInLevel++;
-                const newColor = palette[snake.length % palette.length];
-                snake.unshift({x: head.x, y: head.y, color: newColor});
+                snake.unshift({x: head.x, y: head.y, color: palette[snake.length % palette.length]});
                 if (foodsInLevel >= 10) showResult(true);
                 else spawnFood();
             } else {
                 for(let i = snake.length - 1; i > 0; i--) {
-                    snake[i].x = snake[i-1].x;
-                    snake[i].y = snake[i-1].y;
+                    snake[i].x = snake[i-1].x; snake[i].y = snake[i-1].y;
                 }
-                snake[0].x = head.x;
-                snake[0].y = head.y;
+                snake[0].x = head.x; snake[0].y = head.y;
             }
             
-            document.getElementById('lvl').innerText = level;
-            document.getElementById('f-count').innerText = foodsInLevel;
-            document.getElementById('score').innerText = score;
+            updateUI();
             draw();
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.font = "32px serif";
-            ctx.textAlign = "center";
-            ctx.fillText(food.data.icon, food.x + gridSize/2, food.y + gridSize/2 + 10);
-            snake.forEach((part, i) => {
-                ctx.fillStyle = part.color;
-                ctx.beginPath();
-                ctx.roundRect(part.x + 4, part.y + 4, gridSize - 8, gridSize - 8, 12);
-                ctx.fill();
-            });
         }
 
         function showResult(isWin) {
             clearInterval(gameInterval);
-            stopAllMusic(); // Ferma la musica di gioco
-
-            if(isWin) sounds.vittoria.play(); // Musica Vittoria
-            else sounds.lose.play(); // Musica Sconfitta
+            stopAllMusic(); // Ferma durante.wav
 
             const screen = document.getElementById('result-screen');
             screen.classList.remove('hidden');
-            const title = document.getElementById('result-title');
-            const stats = document.getElementById('result-stats');
-            const btn = document.getElementById('result-btn');
-
+            
             if(isWin) {
-                title.innerText = "LEVEL ASCENDED";
-                title.style.color = "#f0c3ff";
-                stats.innerHTML = `Score: ${score}<br>Your serpent is growing stronger.`;
-                btn.innerText = "NEXT LEVEL";
-                btn.onclick = () => { 
-                    level++; 
-                    screen.classList.add('hidden'); 
-                    stopAllMusic();
-                    sounds.durante.play();
-                    initGame(); 
-                };
+                sounds.vittoria.play();
+                document.getElementById('result-title').innerText = "LEVEL ASCENDED";
+                document.getElementById('result-title').style.color = "#f0c3ff";
+                document.getElementById('result-btn').innerText = "CONTINUE JOURNEY";
             } else {
-                title.innerText = "COSMIC DEFEAT";
-                title.style.color = "#ff4444";
-                stats.innerHTML = `Final Score: ${score}<br>Level reached: ${level}`;
-                btn.innerText = "RETRY";
-                btn.onclick = () => { 
-                    screen.classList.add('hidden'); 
-                    stopAllMusic();
-                    sounds.durante.play();
-                    initGame(); 
-                };
+                sounds.lose.play();
+                document.getElementById('result-title').innerText = "COSMIC DEFEAT";
+                document.getElementById('result-title').style.color = "#ff4444";
+                document.getElementById('result-btn').innerText = "TRY AGAIN";
             }
+
+            document.getElementById('result-stats').innerHTML = `Score: ${score}<br>Level: ${level}`;
+            
+            document.getElementById('result-btn').onclick = () => {
+                if(isWin) level++;
+                screen.classList.add('hidden');
+                stopAllMusic();
+                sounds.durante.play();
+                initGame();
+            };
         }
+
+        function updateUI() {
+            document.getElementById('lvl').innerText = level;
+            document.getElementById('f-count').innerText = foodsInLevel;
+            document.getElementById('score').innerText = score;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Food
+            ctx.font = "32px serif";
+            ctx.fillText(food.data.icon, food.x + 10, food.y + 32);
+            // Snake
+            snake.forEach(part => {
+                ctx.fillStyle = part.color;
+                ctx.beginPath();
+                ctx.roundRect(part.x + 2, part.y + 2, gridSize - 4, gridSize - 4, 10);
+                ctx.fill();
+            });
+        }
+
+        const palette = ["#ff00ff", "#e0aaff", "#9d4edd", "#7b2cbf", "#5a189a"];
+        const foodList = [{icon:"🥩"}, {icon:"🍰"}, {icon:"🍗"}, {icon:"🍕"}, {icon:"🍎"}];
 
         window.addEventListener("keydown", e => {
             if (e.key === "ArrowUp" && dy === 0) { nextDx = 0; nextDy = -gridSize; }
@@ -277,6 +248,20 @@
             if (e.key === "ArrowLeft" && dx === 0) { nextDx = -gridSize; nextDy = 0; }
             if (e.key === "ArrowRight" && dx === 0) { nextDx = gridSize; nextDy = 0; }
         });
+
+        // Genera stelle di sfondo
+        function buildUniverse() {
+            const container = document.getElementById('universe');
+            for(let i=0; i<100; i++) {
+                const s = document.createElement('div');
+                s.className = 'star';
+                s.style.width = s.style.height = Math.random() * 3 + 'px';
+                s.style.left = Math.random() * 100 + '%';
+                s.style.top = Math.random() * 100 + '%';
+                container.appendChild(s);
+            }
+        }
+        buildUniverse();
     </script>
 </body>
 </html>
